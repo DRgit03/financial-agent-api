@@ -1,0 +1,26 @@
+# Bytecode
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+
+# Temporary files and folders
+*.log
+*.tmp
+temp/
+app/temp/
+
+# VSCode settings (optional)
+.vscode/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore all temp files/folders
+temp/
+app/temp/
+*.tmp
+*_filtered_income.pdf
+
