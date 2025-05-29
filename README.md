@@ -1,6 +1,3 @@
-Here is the **updated and enhanced `README.md`** for your project with the requested additions:
-
----
 
 ````markdown
 # 🤖 What is an Agent? What is an Agentic API?
