@@ -157,36 +157,43 @@ def validate_uploaded_pdfs(validation_requests: List[Dict[str, Any]]) -> List[Di
                 results.append({"fileName": file_name, "error": str(e)})
 
     finally:
-        cleanup_temp_folder()  # ✅ Always cleanup temp files
+        cleanup_temp_folder()  #  Always cleanup temp files
     return results
 
 
 @tool
 def summarize_financials(results: list) -> str:
     """
-    Summarize the validated income statement results using an LLM.
-    This function receives the results of financial validation and generates 
-    a narrative insight using prompting (e.g., zero-shot or few-shot).
+    Summarize validated income statement results using both zero-shot and few-shot prompting.
+    Combines example-based reasoning with task-specific instructions.
+    """
+    llm = ChatOllama(model="mistral")
+
+    few_shot_examples = """
+    Example 1:
+    Revenue: 5000, Net Income: 1000 → Profit Margin = 20%
+    Previous Net Income: 800 → YoY Growth = 25%
+
+    Example 2:
+    Revenue: 7000, Net Income: 1400 → Profit Margin = 20%
+    Previous Net Income: 1000 → YoY Growth = 40%
     """
 
-    llm = ChatOllama(model="mistral")
-    # prompt = "Summarize this financial validation result and give performance analysis for both years latest quarters and YoY Growth = (Current Period - Previous Period) / Previous Period, Net Profit Margin = Net Income / Revenue do this calculations , can you display extracted income statement table markdown:\n\n" + str(results)
-    prompt = """
-            You are a financial analysis assistant. Based on the following income statement validation results, perform:
+    zero_shot_instruction = """
+    You are a financial analysis assistant. Based on the following income statement validation results, perform:
+    1. Performance analysis of the latest quarters for each fiscal year.
+    2. Calculate:
+    - Net Profit Margin = Net Income / Revenue
+    - YoY Growth = (Current - Previous) / Previous for Net Income
+    3. Identify if submitted net income matches calculated net income.
+    4. Display the extracted income statement table in Markdown format.
+    5. Write a short conclusion on overall accuracy and growth trends.
+    6. Output all results clearly and professionally.
+    """
 
-            1. Performance analysis of the latest quarters for each fiscal year.
-            2. Calculate:
-            - Net Profit Margin = Net Income / Revenue
-            - YoY Growth = (Current - Previous) / Previous for Net Income
-            3. Identify if submitted net income matches calculated net income.
-            4. Display the extracted income statement table in Markdown format.
-            5. Write a short conclusion on overall accuracy and growth trends.
-            6.Please output all results clearly and professionally.
+    # Combine both sections
+    prompt = few_shot_examples + "\n\n" + zero_shot_instruction + "\n\nData:\n" + str(results)
 
-            Data:
-            """ + str(results)
     response = llm.invoke([HumanMessage(content=prompt)])
-
-    # ✅ Return just the string, not AIMessage
     return response.content
 

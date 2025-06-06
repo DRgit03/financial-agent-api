@@ -1,64 +1,45 @@
+# 🤖 Agentic Financial Document Validator – README
 
-````markdown
-# 🤖 What is an Agent? What is an Agentic API?
-
-An **agent** is an intelligent system component capable of making decisions, invoking tools, and reasoning through a task—often guided by an LLM (Large Language Model). 
-
-An **Agentic API** is a backend service that leverages agents to perform context-aware, multi-step, decision-driven tasks via programmatic HTTP endpoints.
-
-In this project, the agent:
-- Receives uploaded financial PDFs and validation input
-- Parses and filters documents using OCR and markdown
-- Uses logic and tool-chaining to extract financial insights
-- Validates Net Income against submitted values
+A FastAPI + LangGraph-powered agentic API to extract and validate income statement data from financial PDFs.
 
 ---
 
-## 🧠 Why LangGraph for Agent API?
+## 📘 Project Overview
 
-We use **LangGraph**, an open-source agentic framework by LangChain, because:
-- ✅ It provides **stateful, multi-step execution** of agents
-- ✅ Supports **tool integration** for document processing
-- ✅ Works seamlessly with **LLMs like Ollama or OpenAI**
-- ✅ Supports **branching logic and workflows**, ideal for financial validation
+This project implements an agentic API that receives uploaded financial PDFs (e.g., investor presentations, 10-Ks), filters for income statements, validates `Net Income` against user input, and generates performance summaries using LLM prompting.
 
-Frameworks considered:
-| Framework        | Reason Selected/Rejected            |
-|------------------|--------------------------------------|
-| **LangGraph** ✅ | Best for composable agent flows with tools |
-| LangChain Agents | Less control over state and flow     |
-| CrewAI           | Good for multi-agent but not focused on validation |
-| AutoGen / AutoGPT | Too complex for our use case        |
+It combines FastAPI + LangGraph to build a tool-based intelligent backend using OCR, financial heuristics, and LLM reasoning (via OpenAI or Ollama).
 
 ---
 
-# 🧾 Financial Agent API
+## 🧠 Why LangGraph?
 
-A FastAPI-based agentic API that validates income statements from uploaded financial PDFs using LangGraph agents, OCR, and LLMs like OpenAI or Ollama.
+**LangGraph**, built on LangChain, supports:
+
+* ✅ Stateful, multi-step agent workflows
+* ✅ Conditional branching logic
+* ✅ Tool-calling and tool-chaining
+* ✅ Seamless integration with LLMs
+
+| Framework        | Reason Selected/Rejected                            |
+| ---------------- | --------------------------------------------------- |
+| **LangGraph** ✅  | Supports tool calling, dynamic flow control         |
+| LangChain Agents | Lacks state tracking, limited subtask handling      |
+| CrewAI           | Great for multi-agent but overkill here             |
+| AutoGPT          | Too dynamic and uncontrollable for validation tasks |
 
 ---
 
-## ✅ Features
+## ✅ Key Features
 
-- 📤 Upload financial PDFs (multi-file support)
-- 🧠 Extract income statement data using OCR & table parsing
-- 📊 Validate `net income` against submitted values
-- 🧹 Temporary file handling and auto-cleanup
-- 🛠 Agentic workflow with LangGraph & LangChain tools
-- ⚙️ LLM-powered logic via OpenAI or Ollama
-- 🔎 Auto-generated API docs via FastAPI
-
----
-
-## 🧱 Tech Stack
-
-- **FastAPI** – REST API framework
-- **LangGraph** – Agentic workflow orchestration
-- **LangChain Tools** – Tool abstraction for `validate_uploaded_pdfs()`
-- **Docling** – PDF to Markdown with OCR
-- **PyMuPDF (fitz)** – PDF text extraction
-- **PyPDF2** – Page splitting and filtering
-- **Ollama or OpenAI** – For LLM model inference
+* 📤 Upload financial PDFs
+* 📑 Extract income statement tables via OCR + Markdown
+* 📊 Validate submitted `Net Income` with parsed data
+* 📈 Compute margins, growth, and highlight mismatches
+* 🧠 Summarize results using LLMs (zero-shot + few-shot prompts)
+* 🔁 Clean up temp files automatically after use
+* 🛠️ Modular agentic design using `@tool` and LangGraph
+* 🎯 **Dynamic Orchestration** using LangGraph (explained below)
 
 ---
 
@@ -68,38 +49,38 @@ A FastAPI-based agentic API that validates income statements from uploaded finan
 financial-agent-api/
 ├── app/
 │   ├── agent.py             # LangGraph agent setup
-│   ├── routes.py            # FastAPI route for PDF validation
-│   ├── tools.py             # Income statement extraction + validation tool
-│   └── temp/                # Temporary PDF pages (auto-deleted)
+│   ├── routes.py            # FastAPI route: /validate
+│   ├── tools.py             # Tool logic: parse, validate, summarize
+│   └── temp/                # Temp folder for filtered PDFs
 │
 ├── data/
-│   └── income_statements/   # Uploaded PDFs (input)
+│   └── income_statements/   # Sample input PDFs
 │
-├── main.py                  # FastAPI entry point
-├── README.md                # You're reading it
-└── requirements.txt         # Dependencies
-````
+├── main.py                  # FastAPI entrypoint
+├── README.md                # Project documentation
+└── requirements.txt         # Dependency list
+```
 
 ---
 
 ## ⚙️ Setup Instructions
 
-### 1️⃣ Clone the Repository
+### 1. Clone Repository
 
 ```bash
-git clone https://github.com/DRgit03/financial-agent-api.git
+git clone https://github.com/your-username/financial-agent-api.git
 cd financial-agent-api
 ```
 
-### 2️⃣ Create a Virtual Environment
+### 2. Create Virtual Environment
 
 ```bash
 python -m venv venv
-source venv/bin/activate        # Linux/macOS
+source venv/bin/activate        # macOS/Linux
 venv\Scripts\activate           # Windows
 ```
 
-### 3️⃣ Install Python Dependencies
+### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -107,36 +88,37 @@ pip install -r requirements.txt
 
 ---
 
-## 🤖 Pull Ollama Model (if using Ollama)
+## 🧠 Using OpenAI or Ollama
 
-If you're using a local LLM via [Ollama](https://ollama.com):
+### Option A: Ollama (local LLM)
 
 ```bash
 ollama pull mistral
+ollama run mistral
 ```
 
-Then ensure Ollama is running:
+### Option B: OpenAI
 
 ```bash
-ollama run mistral
+export OPENAI_API_KEY=your-openai-key
 ```
 
 ---
 
-## 🚀 Start the FastAPI Server
+## 🚀 Launch FastAPI Server
 
 ```bash
 uvicorn main:app --reload --port 8080
 ```
 
-Once the server is running, visit:
+Visit:
 
-* ✅ Swagger Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
-* ✅ Root URL: [http://localhost:8000/](http://localhost:8000/)
+* Docs: [http://localhost:8080/docs](http://localhost:8080/docs)
+* Root: [http://localhost:8080/](http://localhost:8080/)
 
 ---
 
-## 🧪 API Example
+## 🧪 Example API Call
 
 ### Endpoint
 
@@ -146,142 +128,121 @@ POST /validate
 
 ### Form Data
 
-* `files[]`: Upload one or more PDF files
-* `submittedNetIncome`: (float) Value to validate against extracted net income
+* `files[]`: Upload one or more PDFs
+* `submittedNetIncome`: Float
+
+### Output
+
+* Parsed financials per file (Revenue, Net Income, etc.)
+* `isValid`: Whether calculated and submitted Net Income match
+* Markdown table of extracted data
+* LLM-generated narrative summary
 
 ---
 
-## 🧼 Temp File Handling
-
-* Filtered PDFs are saved in `/app/temp/`
-* Automatically deleted using `cleanup_temp_folder()` after validation
-* **Excluded from Git using**:
-
-```bash
-# .gitignore
-/app/temp/
-```
-
-
-## 🧠 What is an **Agent**?
-
-An **agent** in AI systems is an autonomous, decision-making entity that observes the environment (input), chooses tools or actions, and generates a response based on its reasoning.
-
-In this project:
-
-* The **agent** is powered by a language model (like **Ollama Mistral**) and is capable of:
-
-  * Understanding user intent ("Validate PDFs")
-  * Selecting the right **tool** (`validate_uploaded_pdfs`)
-  * Executing it with structured input
-  * Returning results in a human-readable format
-
----
-
-## 🔌 What is an **Agentic API**?
-
-An **agentic API** is an API that exposes LLM agents as callable endpoints. It doesn't just run hardcoded logic—it empowers an **LLM agent to decide** what tools or logic to run, based on natural language or structured inputs.
-
-In your system:
-
-* You expose a FastAPI `/validate` endpoint.
-* That endpoint doesn’t directly validate PDFs.
-* Instead, it invokes a **LangGraph agent**, which:
-
-  1. Uses the `mistral` LLM (via Ollama)
-  2. Understands the request
-  3. Selects and calls `validate_uploaded_pdfs()` (the tool)
-  4. Returns parsed results
-
-This makes your API "agentic"—the logic is dynamic, not static.
-
----
-
-## 🏗️ What Agentic Framework is Used?
-
-Your code uses the following **agentic framework stack**:
-
-| Layer                   | Tool / Framework                             | Purpose                                           |
-| ----------------------- | -------------------------------------------- | ------------------------------------------------- |
-| **API Layer**           | `FastAPI`                                    | Handles HTTP routes like `/validate`              |
-| **Agent Orchestration** | `LangGraph`                                  | Builds stateful multi-step agent workflows        |
-| **Agent Interface**     | `LangChain` (with `Tool`, `AgentExecutor`)   | Wraps your tool and LLM to create the agent       |
-| **LLM Backend**         | `Ollama (Mistral)`                           | The actual language model that decides what to do |
-| **Document Parsing**    | `Docling`, `PyMuPDF`, `PyPDF2`               | Used inside the tool to extract tables from PDFs  |
-| **Tooling Layer**       | `@tool` decorated `validate_uploaded_pdfs()` | The callable function the agent can invoke        |
-
----
-
-## 🔁 Your Flow in Agentic Architecture:
+## 🤖 Agentic Architecture
 
 ```mermaid
 flowchart TD
-    subgraph FastAPI Server
-        A1[POST /validate] --> A2[LangGraph Agent]
-    end
-
-    subgraph LangGraph Agent
-        A2 --> B1[LLM (Ollama)]
-        B1 --> B2[Tool: validate_uploaded_pdfs]
-    end
-
-    subgraph Tool Logic
-        B2 --> C1[find_income_statement_pages]
-        C1 --> C2[extract_pages_to_temp_pdf]
-        C2 --> C3[DocumentConverter + Markdown]
-        C3 --> C4[extract_income_tables_from_markdown]
-        C4 --> C5[parse_income_statement_tables]
-        C5 --> R[Return structured result]
-    end
+    A[Upload PDFs] --> B[LangGraph Agent]
+    B --> C[LLM (Ollama/OpenAI)]
+    C --> D[Tool: validate_uploaded_pdfs()]
+    D --> E[OCR + Markdown Parsing]
+    E --> F[Financial Summary Generator]
 ```
 
 ---
 
-## 🧾 Where is OCR used?
+## 🧠 Agent vs Agentic API
 
-OCR is used implicitly in this step:
+### What is an Agent?
+
+An **agent** is a smart, decision-making module that:
+
+* Understands user intent
+* Chooses tools dynamically
+* Decomposes tasks (extract → validate → summarize)
+
+### What is an Agentic API?
+
+An **agentic API** lets the agent handle multi-step logic behind an endpoint. In this project:
+
+* The `/validate` route doesn’t just validate – it activates the agent
+* The agent selects `validate_uploaded_pdfs()` and generates LLM-driven output
+* Decisions, summaries, and validation are all contextual
+
+---
+
+## 🔁 Orchestration in This Project
+
+**Orchestration** means managing the entire decision-driven workflow of the agent:
+
+* It **chooses the tool** (`validate_uploaded_pdfs`) based on input
+* It **passes data** step-by-step (upload → parse → validate → summarize)
+* It **branches logic** (e.g., decide to summarize only if needed)
+* This flow is handled by `LangGraph`, allowing dynamic reasoning
+
+The agent is not just a tool executor—**it’s a task orchestrator** that mimics how a human would analyze, validate, and report financial statements intelligently.
+
+---
+
+## ✨ Prompting Techniques
+
+### Zero-Shot Prompt (Pure Instruction)
 
 ```python
-converter = DocumentConverter()
-result = converter.convert(filtered_pdf_path)
-markdown = result.document.export_to_markdown()
+prompt = f"""
+You are a financial assistant. Summarize:
+1. Performance analysis
+2. Net Profit Margin = Net Income / Revenue
+3. YoY Growth = (Current - Previous) / Previous
+4. Display Markdown Table
+5. Highlight validation issues
+
+Data:
+{results}
+"""
 ```
 
-* The `Docling` library performs **OCR + layout analysis** on the filtered PDF to extract readable text and structure.
-* This is how you're able to read tables like:
+### Few-Shot Prompt (Structured Examples)
 
-  ```
-  | Line Item        | Q3FY25 |
-  |------------------|--------|
-  | Total Income     | ...    |
-  | Total Expenses   | ...    |
-  | Profit After Tax | ...    |
-  ```
+```text
+Example 1:
+Revenue: 5000, Net Income: 1000 → Margin = 20%
+Previous NI: 800 → YoY = 25%
 
----
+Example 2:
+Revenue: 7000, Net Income: 1400 → Margin = 20%
+Previous NI: 1000 → YoY = 40%
+```
 
-## ✅ Summary of Agentic Layers in Your Files
+Then:
 
-| File           | Role in Agentic System                                       |
-| -------------- | ------------------------------------------------------------ |
-| `tools.py`     | Contains the tool logic (`@tool`) that the agent can call    |
-| `agent.py`     | Creates a LangGraph agent with LLM + tool + state management |
-| `routes.py`    | FastAPI route that calls the agent                           |
-| `main.py`      | Boots the FastAPI app and mounts the router                  |
-| `temp/` folder | Used for temporary filtered PDFs (deleted post-validation)   |
-
-
-
+```python
+prompt = examples + "\n\nData:\n" + str(results)
+```
 
 ---
 
-## 📄 License
+## 🧼 Cleanup Logic
 
-MIT License. Feel free to fork and modify.
+All intermediate PDFs are stored in `/app/temp/` and removed after processing using `cleanup_temp_folder()`.
+These files are excluded from Git via `.gitignore`.
 
 ---
 
-## 🙌 Maintainer
+## 🧾 System Summary
 
-Built with ❤️ by [@DRgit03](https://github.com/DRgit03)
+| Component       | Description                                         |
+| --------------- | --------------------------------------------------- |
+| `main.py`       | FastAPI app startup script                          |
+| `routes.py`     | Handles incoming file uploads                       |
+| `agent.py`      | Builds the LangGraph agent with tool + LLM          |
+| `tools.py`      | Tool logic for page detection, parsing, summarizing |
+| `Docling`       | OCR + Markdown conversion                           |
+| `LangGraph`     | Framework for agentic workflows                     |
+| `LangChain`     | Tool abstraction + prompt interface                 |
+| `Ollama`/OpenAI | LLMs used for reasoning + summarization             |
+
+---
 
